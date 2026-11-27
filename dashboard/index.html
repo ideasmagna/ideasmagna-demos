@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PulseERP · SaaS / ERP Ejecutivo en Tiempo Real · Ideas Magna Demo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --surface-2: #f1f5f9;
+      --border: #e2e8f0;
+      --ink: #0f172a;
+      --ink-2: #475569;
+      --ink-3: #64748b;
+      --brand: #4f46e5;
+      --brand-soft: rgba(79,70,229,.1);
+      --green: #059669;
+      --green-soft: rgba(5,150,105,.12);
+      --amber: #d97706;
+      --amber-soft: rgba(217,119,6,.12);
+      --red: #dc2626;
+      --red-soft: rgba(220,38,38,.12);
+      --shadow: 0 1px 3px rgba(15,23,42,.06), 0 8px 24px -12px rgba(15,23,42,.08);
+    }
+    [data-theme="dark"] {
+      --bg: #0b1120;
+      --surface: #111827;
+      --surface-2: #1e293b;
+      --border: rgba(148,163,184,.16);
+      --ink: #f8fafc;
+      --ink-2: #cbd5e1;
+      --ink-3: #94a3b8;
+      --brand: #6366f1;
+      --brand-soft: rgba(99,102,241,.18);
+      --green: #34d399;
+      --green-soft: rgba(52,211,153,.14);
+      --amber: #fbbf24;
+      --amber-soft: rgba(251,191,36,.14);
+      --red: #f87171;
+      --red-soft: rgba(248,113,113,.14);
+      --shadow: 0 12px 30px -16px rgba(0,0,0,.6);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; transition: background 200ms, color 200ms; }
+    a { color: inherit; text-decoration: none; }
+
+    .demo-ribbon {
+      background: #0f172a; color: #e2e8f0; font-size: 12px; padding: 8px 18px;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+    .demo-ribbon__l { display: flex; align-items: center; gap: 12px; }
+    .demo-ribbon a.back { color: #a5b4fc; font-weight: 600; }
+    .demo-ribbon a.cta { background: #6366f1; color: #fff; padding: 5px 12px; border-radius: 6px; font-weight: 600; font-size: 11.5px; }
+
+    .app { display: grid; grid-template-columns: 230px minmax(0, 1fr); min-height: calc(100vh - 38px); }
+    .side {
+      background: var(--surface); border-right: 1px solid var(--border); padding: 20px 14px;
+      display: flex; flex-direction: column; gap: 22px;
+    }
+    .logo { display: flex; align-items: center; gap: 10px; padding: 0 8px; }
+    .logo__box { width: 32px; height: 32px; border-radius: 8px; background: var(--brand); color: #fff; display: grid; place-items: center; font-weight: 700; font-size: 14px; }
+    .logo b { font-size: 15px; display: block; }
+    .logo small { font-size: 11px; color: var(--ink-3); }
+    .nav { display: flex; flex-direction: column; gap: 4px; }
+    .nav button {
+      display: flex; align-items: center; justify-content: space-between; width: 100%;
+      padding: 9px 12px; border: 0; border-radius: 8px; background: transparent;
+      color: var(--ink-2); font: inherit; font-size: 13.5px; font-weight: 500; cursor: pointer; text-align: left;
+    }
+    .nav button:hover { background: var(--surface-2); color: var(--ink); }
+    .nav button.on { background: var(--brand-soft); color: var(--brand); font-weight: 600; }
+    .nav .badge { font-family: 'JetBrains Mono', monospace; font-size: 11px; padding: 2px 7px; border-radius: 99px; background: var(--surface-2); color: var(--ink-2); }
+    .side__foot { margin-top: auto; padding: 12px; border-radius: 10px; background: var(--surface-2); font-size: 12px; color: var(--ink-2); line-height: 1.5; }
+    .side__foot b { color: var(--ink); display: block; margin-bottom: 4px; }
+
+    .main { padding: 24px 28px 48px; display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+    .head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px; }
+    .head h1 { font-size: 22px; font-weight: 700; letter-spacing: -.02em; }
+    .head p { font-size: 13px; color: var(--ink-3); margin-top: 2px; }
+    .controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+    .seg { display: inline-flex; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 3px; }
+    .seg button {
+      border: 0; background: transparent; color: var(--ink-2); font: inherit; font-size: 12px; font-weight: 600;
+      padding: 6px 10px; border-radius: 6px; cursor: pointer;
+    }
+    .seg button.on { background: var(--brand); color: #fff; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 7px; padding: 8px 13px; border-radius: 8px;
+      border: 1px solid var(--border); background: var(--surface); color: var(--ink);
+      font: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer;
+    }
+    .btn:hover { border-color: var(--brand); }
+    .btn--pri { background: var(--brand); border-color: var(--brand); color: #fff; }
+    .btn--live { border-color: var(--green); color: var(--green); background: var(--green-soft); }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); display: inline-block; animation: pulse 1.6s infinite; }
+    @keyframes pulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: .4; transform: scale(.8); } }
+
+    .kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+    .kpi {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+      padding: 16px 18px; box-shadow: var(--shadow);
+    }
+    .kpi__top { display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: var(--ink-3); font-weight: 500; }
+    .kpi__val { font-size: 26px; font-weight: 700; letter-spacing: -.02em; margin: 8px 0 6px; font-variant-numeric: tabular-nums; }
+    .kpi__delta { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px; border-radius: 6px; }
+    .kpi__delta.up { background: var(--green-soft); color: var(--green); }
+    .kpi__delta.warn { background: var(--amber-soft); color: var(--amber); }
+
+    .grid-2 { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(280px, .85fr); gap: 16px; }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; box-shadow: var(--shadow); }
+    .card__head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+    .card__head h2 { font-size: 15px; font-weight: 700; }
+    .card__head span { font-size: 12px; color: var(--ink-3); }
+
+    .chart-wrap { position: relative; height: 220px; width: 100%; }
+    .chart-wrap svg { width: 100%; height: 100%; overflow: visible; }
+    .chart-labels { display: flex; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--ink-3); margin-top: 8px; }
+    .tooltip {
+      position: absolute; pointer-events: none; background: #0f172a; color: #fff;
+      padding: 6px 10px; border-radius: 7px; font-size: 11.5px; font-family: 'JetBrains Mono', monospace;
+      opacity: 0; transform: translate(-50%, -115%); transition: opacity 140ms; white-space: nowrap; z-index: 5;
+    }
+
+    .inv-list { display: flex; flex-direction: column; gap: 12px; }
+    .inv-item { display: grid; gap: 6px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+    .inv-item:last-child { border-bottom: 0; padding-bottom: 0; }
+    .inv-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 13px; }
+    .inv-bar { height: 7px; border-radius: 99px; background: var(--surface-2); overflow: hidden; }
+    .inv-bar i { display: block; height: 100%; border-radius: 99px; transition: width 300ms; }
+    .inv-btn { font-size: 11px; font-weight: 600; color: var(--brand); background: var(--brand-soft); border: 0; padding: 4px 8px; border-radius: 6px; cursor: pointer; }
+
+    .table-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+    .search {
+      padding: 7px 11px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg);
+      color: var(--ink); font: inherit; font-size: 12.5px; width: 210px;
+    }
+    .tbl-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th { text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-3); padding: 10px 10px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 10px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    tr.flash { animation: rowFlash 1.4s ease; }
+    @keyframes rowFlash { 0% { background: var(--brand-soft); } 100% { background: transparent; } }
+    .mono { font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+    .st {
+      display: inline-flex; align-items: center; gap: 5px; padding: 4px 9px; border-radius: 99px;
+      font-size: 11.5px; font-weight: 600; border: 0; cursor: pointer;
+    }
+    .st--ok { background: var(--green-soft); color: var(--green); }
+    .st--proc { background: var(--brand-soft); color: var(--brand); }
+    .st--pend { background: var(--amber-soft); color: var(--amber); }
+
+    .toast {
+      position: fixed; right: 20px; bottom: 20px; z-index: 50;
+      background: #0f172a; color: #f8fafc; padding: 12px 16px; border-radius: 10px;
+      font-size: 13px; box-shadow: 0 18px 40px rgba(0,0,0,.35); border: 1px solid rgba(99,102,241,.4);
+      opacity: 0; transform: translateY(12px); pointer-events: none; transition: all 240ms;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    @media (max-width: 1020px) {
+      .app { grid-template-columns: 1fr; }
+      .side { display: none; }
+      .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .grid-2 { grid-template-columns: 1fr; }
+      .main { padding: 16px; }
+    }
+    @media (max-width: 560px) {
+      .kpis { grid-template-columns: 1fr; }
+      .search { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="demo-ribbon">
+    <div class="demo-ribbon__l">
+      <a class="back" href="/">← Volver a Demos</a>
+      <span>DEMO-01 · <b>SaaS / ERP Ejecutivo en Tiempo Real</b> (datos simulados)</span>
+    </div>
+    <a class="cta" href="https://ideasmagna.com/#canal">Quiero un sistema así →</a>
+  </div>
+
+  <div class="app">
+    <aside class="side">
+      <div class="logo">
+        <div class="logo__box">P</div>
+        <div><b>PulseERP</b><small>Operación comercial</small></div>
+      </div>
+      <nav class="nav" id="sideNav">
+        <button class="on" data-filter="all" type="button">Resumen Ejecutivo <span class="badge" id="navAll">0</span></button>
+        <button data-filter="Completado" type="button">Órdenes Completadas <span class="badge" id="navOk">0</span></button>
+        <button data-filter="En proceso" type="button">En Despacho <span class="badge" id="navProc">0</span></button>
+        <button data-filter="Pendiente" type="button">Por Aprobar <span class="badge" id="navPend">0</span></button>
+      </nav>
+      <div class="side__foot">
+        <b>Prueba interactiva</b>
+        Haz clic en cualquier estado de la tabla para actualizarlo en vivo, simula órdenes nuevas o exporta el reporte CSV.
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="head">
+        <div>
+          <h1>Centro de Control Operativo</h1>
+          <p>Monitoreo financiero, pedidos e inventario sincronizados en tiempo real.</p>
+        </div>
+        <div class="controls">
+          <div class="seg" id="periodSeg">
+            <button data-p="7d" type="button">7D</button>
+            <button class="on" data-p="30d" type="button">30D</button>
+            <button data-p="90d" type="button">90D</button>
+            <button data-p="1y" type="button">1A</button>
+          </div>
+          <button class="btn btn--live" id="liveBtn" type="button"><span class="dot"></span> En vivo</button>
+          <button class="btn btn--pri" id="simBtn" type="button">+ Simular pedido</button>
+          <button class="btn" id="themeBtn" type="button">◐ Tema</button>
+        </div>
+      </div>
+
+      <section class="kpis">
+        <div class="kpi">
+          <div class="kpi__top"><span>Ingresos Netos</span><span>USD</span></div>
+          <div class="kpi__val" id="kRev">$84,250</div>
+          <span class="kpi__delta up" id="kRevD">+18.4% vs período ant.</span>
+        </div>
+        <div class="kpi">
+          <div class="kpi__top"><span>Órdenes Procesadas</span><span>TOTAL</span></div>
+          <div class="kpi__val" id="kOrd">1,284</div>
+          <span class="kpi__delta up" id="kOrdD">+11.2% conversión</span>
+        </div>
+        <div class="kpi">
+          <div class="kpi__top"><span>Ticket Promedio</span><span>AOV</span></div>
+          <div class="kpi__val" id="kAov">$65.61</div>
+          <span class="kpi__delta up">+4.8% upsell</span>
+        </div>
+        <div class="kpi">
+          <div class="kpi__top"><span>Margen Operativo</span><span>EBITDA</span></div>
+          <div class="kpi__val" id="kMrg">38.4%</div>
+          <span class="kpi__delta warn" id="kAlert">2 alertas de stock</span>
+        </div>
+      </section>
+
+      <section class="grid-2">
+        <div class="card">
+          <div class="card__head">
+            <h2>Evolución de Ingresos</h2>
+            <span id="chartSub">Últimos 30 días · pasa el cursor sobre los puntos</span>
+          </div>
+          <div class="chart-wrap">
+            <div class="tooltip" id="chartTip"></div>
+            <svg id="revChart" viewBox="0 0 600 200" preserveAspectRatio="none"></svg>
+          </div>
+          <div class="chart-labels" id="chartLabels"></div>
+        </div>
+
+        <div class="card">
+          <div class="card__head">
+            <h2>Inventario Crítico</h2>
+            <span>Sincronizado</span>
+          </div>
+          <div class="inv-list" id="invList"></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card__head">
+          <h2>Órdenes Recientes <span style="font-weight:400;font-size:12px;color:var(--ink-3)">(clic en el estado para cambiarlo)</span></h2>
+          <div class="table-tools">
+            <input class="search" id="searchInp" type="search" placeholder="Buscar cliente o #orden..." />
+            <button class="btn" id="csvBtn" type="button">↓ Exportar CSV</button>
+          </div>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Orden</th>
+                <th>Cliente</th>
+                <th>Canal</th>
+                <th>Monto</th>
+                <th>Estado</th>
+                <th>Hora</th>
+              </tr>
+            </thead>
+            <tbody id="ordBody"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const PERIODS = {
+      '7d':  { rev: 21480, ord: 318, mrg: '39.1%', sub: 'Últimos 7 días',  labels: ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'], pts: [2400, 3100, 2850, 3420, 4100, 2980, 2630] },
+      '30d': { rev: 84250, ord: 1284, mrg: '38.4%', sub: 'Últimos 30 días', labels: ['Sem 1','Sem 2','Sem 3','Sem 4','Sem 5','Sem 6','Hoy'], pts: [9800, 11400, 10900, 13200, 12600, 14800, 11550] },
+      '90d': { rev: 248900, ord: 3740, mrg: '37.8%', sub: 'Últimos 90 días', labels: ['Sep 1','Sep 15','Oct 1','Oct 15','Nov 1','Nov 15','Hoy'], pts: [28000, 31500, 35200, 33900, 38400, 41200, 40700] },
+      '1y':  { rev: 962400, ord: 14520, mrg: '40.2%', sub: 'Últimos 12 meses', labels: ['Ene','Mar','May','Jul','Sep','Nov','Dic'], pts: [110000, 124000, 132000, 141000, 152000, 148000, 155400] },
+    };
+
+    let period = '30d';
+    let filterStatus = 'all';
+    let liveOn = true;
+    let extraRev = 0;
+    let extraOrd = 0;
+    let nextId = 4829;
+
+    const inventory = [
+      { sku: 'Kit Automatización Pro', stock: 14, max: 60 },
+      { sku: 'Licencia CRM Enterprise', stock: 42, max: 50 },
+      { sku: 'Sensor IoT Smart Hub', stock: 9, max: 50 },
+      { sku: 'Módulo Facturación API', stock: 31, max: 40 },
+    ];
+
+    const orders = [
+      { id: 'ORD-4828', client: 'Grupo Andino Logística', channel: 'Web B2B', amount: 1450, status: 'Completado', time: 'Hace 2 min' },
+      { id: 'ORD-4827', client: 'Clínica Vida Integral', channel: 'WhatsApp IA', amount: 890, status: 'En proceso', time: 'Hace 8 min' },
+      { id: 'ORD-4826', client: 'Distribuidora El Norte', channel: 'Web B2B', amount: 2340, status: 'Pendiente', time: 'Hace 15 min' },
+      { id: 'ORD-4825', client: 'Inversiones Sol Naciente', channel: 'Portal Clientes', amount: 620, status: 'Completado', time: 'Hace 27 min' },
+      { id: 'ORD-4824', client: 'Restaurantes Brasa Sur', channel: 'WhatsApp IA', amount: 1180, status: 'En proceso', time: 'Hace 41 min' },
+      { id: 'ORD-4823', client: 'Ferretería Central C.A.', channel: 'Web B2B', amount: 3120, status: 'Completado', time: 'Hace 1 h' },
+    ];
+
+    const SAMPLE_CLIENTS = ['Corporación Delta', 'Farmacias SaludPlus', 'Hoteles Costa Azul', 'Importadora Pacífico', 'Constructora Vértice', 'Café Origen Selecto'];
+    const SAMPLE_CHANNELS = ['Web B2B', 'WhatsApp IA', 'Portal Clientes', 'App Móvil'];
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      clearTimeout(showToast._t);
+      showToast._t = setTimeout(() => t.classList.remove('show'), 2800);
+    }
+
+    function renderKpis() {
+      const p = PERIODS[period];
+      const rev = p.rev + extraRev;
+      const ord = p.ord + extraOrd;
+      document.getElementById('kRev').textContent = '$' + rev.toLocaleString('en-US');
+      document.getElementById('kOrd').textContent = ord.toLocaleString('en-US');
+      document.getElementById('kAov').textContent = '$' + (rev / ord).toFixed(2);
+      document.getElementById('kMrg').textContent = p.mrg;
+      const low = inventory.filter((x) => x.stock / x.max < 0.3).length;
+      const al = document.getElementById('kAlert');
+      al.textContent = low ? `${low} alertas de stock` : 'Stock saludable';
+      al.className = 'kpi__delta ' + (low ? 'warn' : 'up');
+    }
+
+    function renderChart() {
+      const p = PERIODS[period];
+      const pts = p.pts.map((v, i) => (i === p.pts.length - 1 ? v + extraRev : v));
+      const max = Math.max(...pts) * 1.15;
+      const w = 600, h = 190, pad = 12;
+      const coords = pts.map((v, i) => [
+        pad + (i * (w - pad * 2)) / (pts.length - 1),
+        h - pad - (v / max) * (h - pad * 2),
+      ]);
+      const lineD = coords.map((c, i) => (i ? 'L' : 'M') + c[0].toFixed(1) + ',' + c[1].toFixed(1)).join(' ');
+      const areaD = `${lineD} L${coords[coords.length - 1][0]},${h} L${coords[0][0]},${h} Z`;
+
+      const svg = document.getElementById('revChart');
+      svg.innerHTML = `
+        <defs>
+          <linearGradient id="gArea" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#6366f1" stop-opacity="0.34" />
+            <stop offset="100%" stop-color="#6366f1" stop-opacity="0.01" />
+          </linearGradient>
+        </defs>
+        <line x1="0" y1="${h * 0.25}" x2="${w}" y2="${h * 0.25}" stroke="currentColor" stroke-opacity="0.08" />
+        <line x1="0" y1="${h * 0.55}" x2="${w}" y2="${h * 0.55}" stroke="currentColor" stroke-opacity="0.08" />
+        <line x1="0" y1="${h * 0.85}" x2="${w}" y2="${h * 0.85}" stroke="currentColor" stroke-opacity="0.08" />
+        <path d="${areaD}" fill="url(#gArea)" />
+        <path d="${lineD}" fill="none" stroke="#6366f1" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+        ${coords.map((c, i) => `<circle cx="${c[0]}" cy="${c[1]}" r="5.5" fill="#6366f1" stroke="#fff" stroke-width="2" data-i="${i}" style="cursor:pointer" />`).join('')}
+      `;
+      document.getElementById('chartSub').textContent = p.sub + ' · pasa el cursor sobre los puntos';
+      document.getElementById('chartLabels').innerHTML = p.labels.map((l) => `<span>${l}</span>`).join('');
+
+      const tip = document.getElementById('chartTip');
+      svg.querySelectorAll('circle').forEach((c) => {
+        c.addEventListener('mouseenter', () => {
+          const i = Number(c.dataset.i);
+          tip.textContent = `${p.labels[i]}: $${pts[i].toLocaleString('en-US')}`;
+          tip.style.left = (coords[i][0] / w) * 100 + '%';
+          tip.style.top = (coords[i][1] / 200) * 100 + '%';
+          tip.style.opacity = '1';
+        });
+        c.addEventListener('mouseleave', () => { tip.style.opacity = '0'; });
+      });
+    }
+
+    function renderInventory() {
+      const box = document.getElementById('invList');
+      box.innerHTML = inventory.map((item, idx) => {
+        const pct = Math.min(100, Math.round((item.stock / item.max) * 100));
+        const col = pct < 30 ? 'var(--red)' : pct < 60 ? 'var(--amber)' : 'var(--green)';
+        return `
+          <div class="inv-item">
+            <div class="inv-row">
+              <strong>${item.sku}</strong>
+              <span class="mono">${item.stock}/${item.max}</span>
+            </div>
+            <div class="inv-bar"><i style="width:${pct}%;background:${col}"></i></div>
+            <div class="inv-row">
+              <span style="font-size:11.5px;color:${col}">${pct < 30 ? 'Stock crítico' : 'Operativo'}</span>
+              <button class="inv-btn" data-restock="${idx}" type="button">+ Reponer 15</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+      box.querySelectorAll('[data-restock]').forEach((b) => {
+        b.addEventListener('click', () => {
+          const item = inventory[Number(b.dataset.restock)];
+          item.stock = Math.min(item.max, item.stock + 15);
+          renderInventory();
+          renderKpis();
+          showToast(`Stock actualizado: ${item.sku} (${item.stock}/${item.max})`);
+        });
+      });
+    }
+
+    function renderOrders(flashFirst = false) {
+      const q = document.getElementById('searchInp').value.trim().toLowerCase();
+      document.getElementById('navAll').textContent = orders.length;
+      document.getElementById('navOk').textContent = orders.filter((o) => o.status === 'Completado').length;
+      document.getElementById('navProc').textContent = orders.filter((o) => o.status === 'En proceso').length;
+      document.getElementById('navPend').textContent = orders.filter((o) => o.status === 'Pendiente').length;
+
+      const list = orders.filter((o) => {
+        if (filterStatus !== 'all' && o.status !== filterStatus) return false;
+        if (q && !o.client.toLowerCase().includes(q) && !o.id.toLowerCase().includes(q)) return false;
+        return true;
+      });
+
+      const tbody = document.getElementById('ordBody');
+      tbody.innerHTML = list.map((o, idx) => {
+        const cls = o.status === 'Completado' ? 'st--ok' : o.status === 'En proceso' ? 'st--proc' : 'st--pend';
+        return `
+          <tr class="${flashFirst && idx === 0 ? 'flash' : ''}">
+            <td class="mono"><b>${o.id}</b></td>
+            <td>${o.client}</td>
+            <td>${o.channel}</td>
+            <td class="mono"><b>$${o.amount.toLocaleString('en-US')}</b></td>
+            <td><button class="st ${cls}" data-cycle="${o.id}" type="button">${o.status}</button></td>
+            <td style="color:var(--ink-3)">${o.time}</td>
+          </tr>
+        `;
+      }).join('');
+
+      tbody.querySelectorAll('[data-cycle]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const ord = orders.find((x) => x.id === btn.dataset.cycle);
+          const flow = ['Pendiente', 'En proceso', 'Completado'];
+          ord.status = flow[(flow.indexOf(ord.status) + 1) % flow.length];
+          renderOrders();
+          showToast(`${ord.id} cambió a "${ord.status}"`);
+        });
+      });
+    }
+
+    function addSimulatedOrder(manual = false) {
+      const amount = Math.round((320 + Math.random() * 2100) / 10) * 10;
+      const client = SAMPLE_CLIENTS[Math.floor(Math.random() * SAMPLE_CLIENTS.length)];
+      const channel = SAMPLE_CHANNELS[Math.floor(Math.random() * SAMPLE_CHANNELS.length)];
+      const o = { id: 'ORD-' + nextId++, client, channel, amount, status: 'Pendiente', time: 'Ahora mismo' };
+      orders.unshift(o);
+      if (orders.length > 18) orders.pop();
+      extraRev += amount;
+      extraOrd += 1;
+      renderKpis();
+      renderChart();
+      renderOrders(true);
+      if (manual) showToast(`Nuevo pedido ${o.id} · ${client} ($${amount})`);
+    }
+
+    document.querySelectorAll('#periodSeg button').forEach((b) => {
+      b.addEventListener('click', () => {
+        document.querySelectorAll('#periodSeg button').forEach((x) => x.classList.remove('on'));
+        b.classList.add('on');
+        period = b.dataset.p;
+        renderKpis();
+        renderChart();
+      });
+    });
+
+    document.querySelectorAll('#sideNav button').forEach((b) => {
+      b.addEventListener('click', () => {
+        document.querySelectorAll('#sideNav button').forEach((x) => x.classList.remove('on'));
+        b.classList.add('on');
+        filterStatus = b.dataset.filter;
+        renderOrders();
+      });
+    });
+
+    document.getElementById('searchInp').addEventListener('input', () => renderOrders());
+    document.getElementById('simBtn').addEventListener('click', () => addSimulatedOrder(true));
+    document.getElementById('themeBtn').addEventListener('click', () => {
+      const dark = document.documentElement.dataset.theme === 'dark';
+      document.documentElement.dataset.theme = dark ? '' : 'dark';
+    });
+    document.getElementById('liveBtn').addEventListener('click', (e) => {
+      liveOn = !liveOn;
+      e.currentTarget.classList.toggle('btn--live', liveOn);
+      e.currentTarget.innerHTML = liveOn ? '<span class="dot"></span> En vivo' : '⏸ Pausado';
+    });
+    document.getElementById('csvBtn').addEventListener('click', () => {
+      const rows = [['Orden','Cliente','Canal','Monto USD','Estado','Hora'], ...orders.map((o) => [o.id, o.client, o.channel, o.amount, o.status, o.time])];
+      const csv = rows.map((r) => r.map((v) => '"' + String(v).replace(/"/g, '""') + '"').join(',')).join('\n');
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+      a.download = 'pulse-erp-ordenes.csv';
+      a.click();
+      showToast('Reporte CSV descargado');
+    });
+
+    setInterval(() => { if (liveOn) addSimulatedOrder(false); }, 9500);
+    renderKpis();
+    renderChart();
+    renderInventory();
+    renderOrders();
+  </script>
+</body>
+</html>

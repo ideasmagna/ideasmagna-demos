@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simulador Chatbot IA / WhatsApp + CRM · Ideas Magna Demo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0b141a;
+      --panel: #111b21;
+      --panel-2: #1c2a33;
+      --border: rgba(134,150,160,.18);
+      --wa-green: #00a884;
+      --wa-out: #005c4b;
+      --wa-in: #202c33;
+      --ink: #e9edef;
+      --ink-2: #8696a0;
+      --accent: #38bdf8;
+      --violet: #a855f7;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; display: flex; flex-direction: column; }
+    a { color: inherit; text-decoration: none; }
+
+    .ribbon {
+      background: #060b0f; border-bottom: 1px solid var(--border); padding: 9px 18px;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; font-size: 12px;
+    }
+    .ribbon__l { display: flex; align-items: center; gap: 12px; }
+    .ribbon a.back { color: #34d399; font-weight: 600; }
+    .ribbon a.cta { background: var(--wa-green); color: #052e16; font-weight: 700; padding: 6px 12px; border-radius: 6px; font-size: 11.5px; }
+
+    .ind-bar {
+      background: var(--panel); border-bottom: 1px solid var(--border); padding: 10px 18px;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+    }
+    .ind-tabs { display: flex; flex-wrap: wrap; gap: 8px; }
+    .ind-btn {
+      border: 1px solid var(--border); background: var(--panel-2); color: var(--ink-2);
+      padding: 7px 13px; border-radius: 99px; font: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer;
+    }
+    .ind-btn.on { background: rgba(0,168,132,.18); border-color: var(--wa-green); color: #fff; }
+    .reset-btn { border: 1px solid var(--border); background: transparent; color: var(--ink-2); padding: 6px 12px; border-radius: 8px; font-size: 12px; cursor: pointer; }
+    .reset-btn:hover { color: #fff; border-color: var(--ink-2); }
+
+    .layout {
+      flex: 1; display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(320px, .85fr);
+      max-width: 1320px; width: 100%; margin: 0 auto; padding: 18px; gap: 18px;
+    }
+
+    /* WhatsApp Chat */
+    .wa {
+      display: flex; flex-direction: column; height: calc(100vh - 140px); min-height: 520px;
+      border: 1px solid var(--border); border-radius: 14px; overflow: hidden; background: #0b141a;
+    }
+    .wa__head {
+      background: #202c33; padding: 12px 16px; display: flex; align-items: center; gap: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .wa__av { width: 40px; height: 40px; border-radius: 50%; background: var(--wa-green); color: #052e16; display: grid; place-items: center; font-weight: 800; font-size: 17px; }
+    .wa__head b { display: block; font-size: 14.5px; }
+    .wa__head small { color: #34d399; font-size: 12px; }
+    .wa__msgs {
+      flex: 1; overflow-y: auto; padding: 18px 16px; display: flex; flex-direction: column; gap: 10px;
+      background-image: radial-gradient(rgba(255,255,255,.04) 1px, transparent 1px);
+      background-size: 20px 20px;
+    }
+    .msg { max-width: 82%; padding: 9px 12px; border-radius: 10px; font-size: 13.5px; line-height: 1.5; position: relative; white-space: pre-line; }
+    .msg--bot { align-self: flex-start; background: var(--wa-in); border-top-left-radius: 2px; }
+    .msg--usr { align-self: flex-end; background: var(--wa-out); border-top-right-radius: 2px; }
+    .msg__t { display: block; text-align: right; font-size: 10px; color: rgba(233,237,239,.6); margin-top: 4px; font-family: 'JetBrains Mono', monospace; }
+    .typing { align-self: flex-start; background: var(--wa-in); padding: 8px 14px; border-radius: 10px; font-size: 12px; color: var(--wa-green); }
+
+    .quick { padding: 8px 14px; display: flex; flex-wrap: wrap; gap: 6px; background: #111b21; border-top: 1px solid var(--border); }
+    .qchip {
+      border: 1px solid rgba(0,168,132,.45); background: rgba(0,168,132,.1); color: #a7f3d0;
+      padding: 6px 11px; border-radius: 99px; font-size: 12px; cursor: pointer; font-family: inherit;
+    }
+    .qchip:hover { background: var(--wa-green); color: #052e16; font-weight: 600; }
+
+    .wa__form { display: flex; gap: 8px; padding: 10px 12px; background: #202c33; }
+    .wa__form input {
+      flex: 1; background: #2a3942; border: 0; border-radius: 8px; padding: 10px 13px;
+      color: #fff; font: inherit; font-size: 13.5px; outline: none;
+    }
+    .wa__form button {
+      background: var(--wa-green); color: #052e16; border: 0; border-radius: 8px; padding: 0 16px;
+      font-weight: 700; cursor: pointer;
+    }
+
+    /* Live CRM panel */
+    .crm {
+      display: flex; flex-direction: column; gap: 14px; height: calc(100vh - 140px); min-height: 520px; overflow-y: auto;
+    }
+    .box { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+    .box__h { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .box__h h2 { font-size: 13px; font-family: 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: .1em; color: var(--accent); }
+    .score-bar { height: 9px; border-radius: 99px; background: var(--panel-2); overflow: hidden; margin-top: 6px; }
+    .score-bar i { display: block; height: 100%; background: linear-gradient(90deg, #f59e0b, #10b981); transition: width 400ms; }
+    .kv { display: grid; gap: 8px; font-size: 13px; }
+    .kv__row { display: flex; justify-content: space-between; gap: 10px; padding-bottom: 8px; border-bottom: 1px dashed var(--border); }
+    .kv__row:last-child { border-bottom: 0; padding-bottom: 0; }
+    .kv__row span { color: var(--ink-2); font-size: 12px; }
+    .kv__row b { text-align: right; color: #fff; }
+    .log { font-family: 'JetBrains Mono', monospace; font-size: 11px; line-height: 1.6; color: #94a3b8; display: flex; flex-direction: column; gap: 5px; max-height: 185px; overflow-y: auto; }
+    .log .ok { color: #34d399; }
+    .log .tag { color: #c084fc; }
+
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; padding: 12px; }
+      .wa { height: 68vh; min-height: 440px; }
+      .crm { height: auto; min-height: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="ribbon">
+    <div class="ribbon__l">
+      <a class="back" href="/">← Volver a Demos</a>
+      <span>DEMO-02 · <b>Chatbot IA / WhatsApp + CRM en Vivo</b></span>
+    </div>
+    <a class="cta" href="https://ideasmagna.com/#canal">Activar en mi WhatsApp →</a>
+  </div>
+
+  <div class="ind-bar">
+    <div class="ind-tabs" id="indTabs">
+      <button class="ind-btn on" data-ind="clinica" type="button">🏥 Clínica Médica</button>
+      <button class="ind-btn" data-ind="restaurante" type="button">🍽️ Restaurante</button>
+      <button class="ind-btn" data-ind="inmobiliaria" type="button">🏠 Inmobiliaria</button>
+      <button class="ind-btn" data-ind="ecommerce" type="button">🛒 E-commerce</button>
+    </div>
+    <button class="reset-btn" id="resetBtn" type="button">↻ Reiniciar chat</button>
+  </div>
+
+  <main class="layout">
+    <section class="wa">
+      <div class="wa__head">
+        <div class="wa__av" id="waAv">C</div>
+        <div>
+          <b id="waName">Asistente Clínica NovaSalud</b>
+          <small id="waStatus">● IA conectada · respuesta en &lt; 2 seg</small>
+        </div>
+      </div>
+      <div class="wa__msgs" id="waMsgs"></div>
+      <div class="quick" id="quickChips"></div>
+      <form class="wa__form" id="waForm">
+        <input id="waInput" type="text" placeholder="Escribe un mensaje como cliente..." autocomplete="off" />
+        <button type="submit">Enviar</button>
+      </form>
+    </section>
+
+    <aside class="crm">
+      <div class="box">
+        <div class="box__h">
+          <h2>Calificación de Lead (IA)</h2>
+          <b id="leadScoreTxt" style="font-family:'JetBrains Mono',monospace;color:#34d399">20%</b>
+        </div>
+        <div style="font-size:12.5px;color:var(--ink-2)" id="leadStage">Etapa: Primer contacto</div>
+        <div class="score-bar"><i id="leadBar" style="width:20%"></i></div>
+      </div>
+
+      <div class="box">
+        <div class="box__h"><h2>Datos Extraídos al CRM</h2><span style="font-size:11px;color:#34d399">● Sync</span></div>
+        <div class="kv">
+          <div class="kv__row"><span>Rubro activo</span><b id="cInd">Clínica Médica</b></div>
+          <div class="kv__row"><span>Nombre detectado</span><b id="cName">Por identificar</b></div>
+          <div class="kv__row"><span>Intención</span><b id="cIntent">Exploración</b></div>
+          <div class="kv__row"><span>Interés / Servicio</span><b id="cService">—</b></div>
+          <div class="kv__row"><span>Cita / Acción</span><b id="cSlot">Sin agendar</b></div>
+        </div>
+      </div>
+
+      <div class="box" style="flex:1">
+        <div class="box__h"><h2>Eventos Webhook en Tiempo Real</h2></div>
+        <div class="log" id="crmLog"></div>
+      </div>
+    </aside>
+  </main>
+
+  <script>
+    const SCENARIOS = {
+      clinica: {
+        av: 'N', title: 'Asistente Clínica NovaSalud', label: 'Clínica Médica',
+        welcome: '¡Hola! 👋 Soy el asistente virtual de Clínica NovaSalud.\nPuedo ayudarte a agendar consulta, revisar precios o resolver dudas. ¿En qué te ayudo hoy?',
+        chips: ['Quiero agendar una cita', '¿Cuánto cuesta la consulta?', 'Tengo un síntoma urgente', 'Mi nombre es Carlos Méndez'],
+        replies: [
+          { re: /urgen|dolor fuerte|sangr|emergen|fiebre alta/i, intent: 'Triaje de Urgencia', score: 95, service: 'Derivación prioritaria', slot: 'Alerta enviada al médico',
+            text: '🚨 Detecté una posible señal de alarma.\nNo doy consejos médicos por chat: te recomiendo acudir de inmediato a urgencias.\nAcabo de enviar una alerta prioritaria al médico de guardia para que se comunique contigo.' },
+          { re: /precio|costo|cuesta|tarifa|cuanto/i, intent: 'Consulta de precios', score: 55, service: 'Consulta Especializada ($60)',
+            text: 'La consulta de primera vez tiene un valor de $60 USD (incluye evaluación completa) y los controles $45 USD.\nAceptamos Zelle, Pago Móvil, tarjeta y seguros.\n¿Deseas que te muestre horarios disponibles?' },
+          { re: /cita|agendar|horario|disponib|mañana|jueves|viernes/i, intent: 'Agendamiento activo', score: 85, service: 'Consulta Primera Vez', slot: 'Jueves 10:30 AM (Pre-reservado)',
+            text: 'Tengo disponibilidad con la especialista:\n• Mañana 10:30 AM\n• Jueves 4:00 PM\n• Viernes 9:00 AM\n\nAcabo de pre-reservar Jueves 10:30 AM. ¿Cuál es tu nombre completo para confirmar?' },
+        ],
+        fallback: 'Entendido. Puedo consultar horarios en Google Calendar, enviarte precios o pasarte con un especialista. ¿Te gustaría ver los horarios disponibles?'
+      },
+      restaurante: {
+        av: 'B', title: 'Brasa & Oliva · Reservas IA', label: 'Restaurante',
+        welcome: '¡Buenas! 🍷 Bienvenido a Brasa & Oliva.\n¿Deseas reservar mesa, ver opciones sin gluten/veganas o hacer un pedido para retirar?',
+        chips: ['Reservar mesa para 4 hoy', '¿Tienen opciones veganas?', 'Quiero pedir delivery', 'A nombre de Valeria Ruiz'],
+        replies: [
+          { re: /mesa|reserv|personas|hoy|noche/i, intent: 'Reserva de mesa', score: 88, service: 'Mesa 4 personas · Terraza', slot: 'Hoy 8:00 PM (Confirmada)',
+            text: '¡Perfecto! Tengo mesa disponible en Terraza para 4 personas hoy a las 8:00 PM.\nYa la aparté en el sistema. ¿A nombre de quién confirmo la reserva?' },
+          { re: /vegano|gluten|alerg|menu|carta/i, intent: 'Consulta dietética', score: 60, service: 'Carta Vegana / Sin Gluten',
+            text: 'Sí, contamos con 6 platos 100% veganos y opciones certificadas sin gluten (como nuestro Risotto de Hongos Trufado y Carpaccio de Remolacha).\n¿Te reservo mesa o prefieres pedir delivery?' },
+          { re: /delivery|pedir|domicilio|llevar/i, intent: 'Pedido Delivery', score: 82, service: 'Orden Delivery Express', slot: 'Link de pago generado',
+            text: '¡Con gusto! Nuestro tiempo estimado de entrega hoy es de 28 minutos.\nPuedes armar tu pedido desde nuestra carta interactiva y pagar con Pago Móvil o tarjeta.' },
+        ],
+        fallback: '¡Anotado! Te ayudo a reservar mesa en segundos, consultar platos especiales o coordinar delivery. ¿Para cuántas personas sería?'
+      },
+      inmobiliaria: {
+        av: 'H', title: 'Hábitat Prime · Asesor IA', label: 'Inmobiliaria',
+        welcome: '¡Hola! 🏙️ Soy el asesor IA de Hábitat Prime.\nTe ayudo a filtrar propiedades según tu presupuesto y agendar visitas hoy mismo. ¿Buscas comprar o alquilar?',
+        chips: ['Busco apartamento para comprar', 'Presupuesto hasta $140,000', 'Agendar visita este sábado', 'Soy Andrés Silva'],
+        replies: [
+          { re: /comprar|apartamento|casa|alquil/i, intent: 'Calificación de propiedad', score: 60, service: 'Compra · Apartamento 3H',
+            text: 'Excelente. Tenemos 4 apartamentos de 2 y 3 habitaciones con planta eléctrica y pozo en zonas premium.\n¿Cuál es tu rango de presupuesto aproximado?' },
+          { re: /presupuesto|\$|mil|140|100|200|financ/i, intent: 'Lead calificado (Alto)', score: 90, service: 'Apto 3H · $135,000 USD', slot: 'Ficha enviada + Asesor asignado',
+            text: 'Con ese presupuesto encajas perfecto en 2 opciones recién listadas ($128k y $135k con financiamiento directo).\nAcabo de crear tu perfil en el CRM y asignar a un asesor. ¿Agendamos visita este sábado a las 11:00 AM?' },
+          { re: /visita|sabado|agendar|verlo/i, intent: 'Visita agendada', score: 98, service: 'Recorrido presencial', slot: 'Sábado 11:00 AM · Confirmado',
+            text: '✅ Visita agendada para el Sábado 11:00 AM.\nTe enviaré la ubicación por WhatsApp 2 horas antes. ¡Nos vemos pronto!' },
+        ],
+        fallback: 'Perfecto, dime si buscas compra o alquiler y tu presupuesto aproximado para enviarte las 3 mejores opciones al instante.'
+      },
+      ecommerce: {
+        av: 'K', title: 'Kova Store · Soporte & Ventas IA', label: 'E-commerce',
+        welcome: '¡Hola! ⚡ Bienvenido a Kova Store.\nPuedo recomendarte productos, cotizar envío nacional o rastrear tu pedido al instante. ¿Qué buscas hoy?',
+        chips: ['¿Tienen envío a Valencia?', 'Rastrear pedido #4821', 'Quiero comprar al mayor', 'Me llamo Laura Peña'],
+        replies: [
+          { re: /envio|valencia|maracaibo|caracas|mrw|zoom/i, intent: 'Consulta logística', score: 65, service: 'Envío Nacional (MRW/Zoom)',
+            text: '¡Sí! Hacemos envíos gratis a todo el país por MRW y Zoom en compras mayores a $45 (entrega en 24-48h), y delivery el mismo día en Caracas.\n¿Te gustaría ver nuestro catálogo o hacer un pedido?' },
+          { re: /rastrear|pedido|4821|estado|orden/i, intent: 'Postventa / Tracking', score: 75, service: 'Pedido #4821', slot: 'En ruta · Entrega hoy 4:30 PM',
+            text: '📦 Pedido #4821 localizado en tiempo real:\n• Estado: En ruta con mensajero\n• Entrega estimada: Hoy 4:30 PM\n¿Necesitas actualizar la dirección o hablar con soporte?' },
+          { re: /mayor|distribuidor|cotiz|empresa/i, intent: 'Venta B2B / Mayorista', score: 94, service: 'Lista Mayorista (>12 uds)', slot: 'Cotización PDF enviada',
+            text: '🔥 Para compras al mayor (desde 12 unidades) aplicamos hasta 28% de descuento.\nYa registré tu solicitud en el CRM B2B. Dime tu nombre y correo para enviarte la lista de precios.' },
+        ],
+        fallback: '¡Claro! Puedo cotizar envíos, consultar stock en tiempo real o rastrear tu número de orden. ¿Qué necesitas revisar?'
+      }
+    };
+
+    let currentInd = 'clinica';
+    let state = { score: 20, name: 'Por identificar', intent: 'Exploración', service: '—', slot: 'Sin agendar' };
+
+    function nowTime() {
+      const d = new Date();
+      return d.toLocaleTimeString('es-VE', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function addLog(tag, text) {
+      const log = document.getElementById('crmLog');
+      const div = document.createElement('div');
+      div.innerHTML = `<span class="tag">[${nowTime()}] ${tag}</span> <span class="ok">${text}</span>`;
+      log.prepend(div);
+    }
+
+    function paintCrm() {
+      const sc = SCENARIOS[currentInd];
+      document.getElementById('cInd').textContent = sc.label;
+      document.getElementById('cName').textContent = state.name;
+      document.getElementById('cIntent').textContent = state.intent;
+      document.getElementById('cService').textContent = state.service;
+      document.getElementById('cSlot').textContent = state.slot;
+      document.getElementById('leadScoreTxt').textContent = state.score + '%';
+      document.getElementById('leadBar').style.width = state.score + '%';
+      document.getElementById('leadStage').textContent =
+        state.score >= 85 ? 'Etapa: Lead caliente listo para cierre' :
+        state.score >= 55 ? 'Etapa: Calificación en curso' : 'Etapa: Primer contacto';
+    }
+
+    function pushMsg(text, who) {
+      const box = document.getElementById('waMsgs');
+      const el = document.createElement('div');
+      el.className = 'msg ' + (who === 'usr' ? 'msg--usr' : 'msg--bot');
+      el.textContent = text;
+      const t = document.createElement('span');
+      t.className = 'msg__t';
+      t.textContent = nowTime() + (who === 'usr' ? ' ✓✓' : '');
+      el.appendChild(t);
+      box.appendChild(el);
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function loadScenario(key) {
+      currentInd = key;
+      const sc = SCENARIOS[key];
+      state = { score: 20, name: 'Por identificar', intent: 'Exploración', service: '—', slot: 'Sin agendar' };
+      document.getElementById('waAv').textContent = sc.av;
+      document.getElementById('waName').textContent = sc.title;
+      document.getElementById('waMsgs').innerHTML = '';
+      document.getElementById('crmLog').innerHTML = '';
+      pushMsg(sc.welcome, 'bot');
+      addLog('SESSION', `Canal WhatsApp IA iniciado (${sc.label})`);
+      paintCrm();
+
+      const chips = document.getElementById('quickChips');
+      chips.innerHTML = sc.chips.map((c) => `<button class="qchip" type="button">${c}</button>`).join('');
+      chips.querySelectorAll('.qchip').forEach((b) => {
+        b.addEventListener('click', () => handleUser(b.textContent));
+      });
+    }
+
+    function handleUser(raw) {
+      const txt = raw.trim();
+      if (!txt) return;
+      pushMsg(txt, 'usr');
+      addLog('WEBHOOK', `Mensaje entrante: "${txt.slice(0, 42)}"`);
+
+      const sc = SCENARIOS[currentInd];
+      const nameMatch = txt.match(/(?:nombre es|soy|me llamo|a nombre de)\s+([A-ZÁÉÍÓÚÑ][a-záéíóúñ]+(?:\s+[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+)?)/i);
+      let replyText = sc.fallback;
+
+      if (nameMatch) {
+        state.name = nameMatch[1];
+        state.score = Math.min(100, Math.max(state.score + 20, 75));
+        state.slot = state.slot === 'Sin agendar' ? 'Contacto registrado en CRM' : state.slot + ' · Confirmado';
+        replyText = `¡Mucho gusto, ${state.name}! ✅\nYa guardé tus datos en el sistema y te envié el resumen de confirmación por WhatsApp. ¿Hay algo más en lo que pueda ayudarte?`;
+        addLog('CRM_SYNC', `Contacto actualizado → ${state.name}`);
+      } else {
+        const hit = sc.replies.find((r) => r.re.test(txt));
+        if (hit) {
+          replyText = hit.text;
+          state.intent = hit.intent;
+          state.score = Math.max(state.score, hit.score);
+          if (hit.service) state.service = hit.service;
+          if (hit.slot) state.slot = hit.slot;
+          addLog('AI_NLU', `Intención="${hit.intent}" · Score=${state.score}%`);
+        } else {
+          state.score = Math.min(95, state.score + 10);
+          addLog('AI_NLU', 'Respuesta contextual generada');
+        }
+      }
+
+      const box = document.getElementById('waMsgs');
+      const typ = document.createElement('div');
+      typ.className = 'typing';
+      typ.textContent = 'escribiendo...';
+      box.appendChild(typ);
+      box.scrollTop = box.scrollHeight;
+
+      setTimeout(() => {
+        typ.remove();
+        pushMsg(replyText, 'bot');
+        paintCrm();
+      }, 650);
+    }
+
+    document.getElementById('waForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const inp = document.getElementById('waInput');
+      handleUser(inp.value);
+      inp.value = '';
+    });
+    document.querySelectorAll('#indTabs button').forEach((b) => {
+      b.addEventListener('click', () => {
+        document.querySelectorAll('#indTabs button').forEach((x) => x.classList.remove('on'));
+        b.classList.add('on');
+        loadScenario(b.dataset.ind);
+      });
+    });
+    document.getElementById('resetBtn').addEventListener('click', () => loadScenario(currentInd));
+    loadScenario('clinica');
+  </script>
+</body>
+</html>

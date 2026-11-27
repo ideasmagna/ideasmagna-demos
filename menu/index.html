@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Brasa &amp; Oliva · Menú Interactivo QR · Ideas Magna Demo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #faf7f2;
+      --paper: #ffffff;
+      --paper-2: #f3ede2;
+      --ink: #1c1917;
+      --ink-2: #57534e;
+      --ink-3: #78716c;
+      --line: #e7dfd3;
+      --brand: #9a3412;
+      --brand-2: #c2410c;
+      --olive: #3f6212;
+      --gold: #b45309;
+      --f-serif: 'Cormorant Garamond', Georgia, serif;
+      --f-sans: 'Inter', system-ui, sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--f-sans); background: var(--bg); color: var(--ink); min-height: 100vh; padding-bottom: 92px; }
+    a { color: inherit; text-decoration: none; }
+
+    .ribbon {
+      background: #1c1917; color: #f5f5f4; font-size: 12px; padding: 8px 18px;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+    }
+    .ribbon__l { display: flex; align-items: center; gap: 12px; }
+    .ribbon a.back { color: #fdba74; font-weight: 600; }
+    .ribbon a.cta { background: #c2410c; color: #fff; padding: 5px 12px; border-radius: 6px; font-weight: 600; font-size: 11.5px; }
+
+    .hero {
+      background: linear-gradient(135deg, #1c1917 0%, #292524 55%, #431407 100%);
+      color: #faf7f2; padding: 34px 20px 28px;
+    }
+    .hero__in { max-width: 1080px; margin: 0 auto; display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 18px; }
+    .hero__tag { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: #fdba74; margin-bottom: 6px; }
+    .hero h1 { font-family: var(--f-serif); font-size: clamp(34px, 5vw, 52px); font-weight: 600; line-height: 1.05; }
+    .hero p { color: #d6d3d1; font-size: 14px; margin-top: 8px; max-width: 520px; line-height: 1.55; }
+    .mode-box { display: flex; gap: 6px; background: rgba(255,255,255,.08); padding: 4px; border-radius: 10px; border: 1px solid rgba(255,255,255,.14); }
+    .mode-box button {
+      border: 0; background: transparent; color: #e7e5e4; padding: 8px 12px; border-radius: 7px;
+      font: inherit; font-size: 12px; font-weight: 600; cursor: pointer;
+    }
+    .mode-box button.on { background: #faf7f2; color: #1c1917; }
+
+    .sticky {
+      position: sticky; top: 0; z-index: 20;
+      background: rgba(250,247,242,.92); backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--line);
+    }
+    .sticky__in { max-width: 1080px; margin: 0 auto; padding: 12px 20px; display: flex; flex-direction: column; gap: 10px; }
+    .cats { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
+    .cats::-webkit-scrollbar { display: none; }
+    .cat {
+      flex: none; border: 1px solid var(--line); background: var(--paper); color: var(--ink-2);
+      padding: 8px 15px; border-radius: 99px; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer;
+    }
+    .cat.on { background: var(--ink); border-color: var(--ink); color: #fff; }
+    .subbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
+    .diets { display: flex; flex-wrap: wrap; gap: 6px; }
+    .diet {
+      border: 1px solid var(--line); background: transparent; color: var(--ink-2);
+      padding: 5px 10px; border-radius: 99px; font: inherit; font-size: 11.5px; font-weight: 600; cursor: pointer;
+    }
+    .diet.on { background: rgba(154,52,18,.12); border-color: var(--brand); color: var(--brand); }
+    .search {
+      padding: 7px 12px; border-radius: 99px; border: 1px solid var(--line); background: var(--paper);
+      font: inherit; font-size: 12.5px; color: var(--ink); width: 220px;
+    }
+
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 24px 20px; }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .dish {
+      display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 14px;
+      background: var(--paper); border: 1px solid var(--line); border-radius: 14px; padding: 14px;
+      cursor: pointer; transition: transform 180ms, box-shadow 180ms, border-color 180ms;
+    }
+    .dish:hover { transform: translateY(-2px); border-color: #d6c8b4; box-shadow: 0 12px 26px -18px rgba(28,25,23,.35); }
+    .dish__art {
+      width: 96px; height: 96px; border-radius: 10px; display: grid; place-items: center;
+      font-size: 38px; position: relative; overflow: hidden;
+    }
+    .dish__art small {
+      position: absolute; bottom: 5px; left: 5px; font-size: 9px; font-weight: 700;
+      background: rgba(28,25,23,.78); color: #fff; padding: 2px 6px; border-radius: 4px; letter-spacing: .04em;
+    }
+    .dish__body { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+    .dish__top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+    .dish h3 { font-family: var(--f-serif); font-size: 21px; font-weight: 700; line-height: 1.15; }
+    .dish__price { font-weight: 700; font-size: 15px; color: var(--brand); white-space: nowrap; }
+    .dish p { font-size: 12.5px; color: var(--ink-2); line-height: 1.45; }
+    .dish__tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: auto; padding-top: 4px; }
+    .dish__tags span { font-size: 10.5px; padding: 2px 7px; border-radius: 99px; background: var(--paper-2); color: var(--ink-2); font-weight: 500; }
+
+    /* Floating Cart Bar */
+    .cartbar {
+      position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%); z-index: 30;
+      width: min(560px, calc(100vw - 24px));
+      background: #1c1917; color: #fff; border-radius: 14px; padding: 13px 16px;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      box-shadow: 0 20px 44px -12px rgba(0,0,0,.45); cursor: pointer; border: 1px solid rgba(253,186,116,.25);
+    }
+    .cartbar.empty { display: none; }
+    .cartbar__cnt { background: #c2410c; color: #fff; font-weight: 700; font-size: 12px; padding: 4px 9px; border-radius: 99px; }
+
+    /* Modals */
+    dialog {
+      border: 0; border-radius: 16px; padding: 0; margin: auto;
+      width: min(480px, calc(100vw - 24px)); max-height: 90vh; overflow: hidden;
+      background: var(--paper); color: var(--ink); box-shadow: 0 28px 70px rgba(0,0,0,.45);
+    }
+    dialog::backdrop { background: rgba(28,25,23,.65); backdrop-filter: blur(4px); }
+    .m-head { padding: 16px 20px; border-bottom: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; }
+    .m-head h2 { font-family: var(--f-serif); font-size: 25px; font-weight: 700; }
+    .m-x { border: 0; background: var(--paper-2); width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 16px; }
+    .m-body { padding: 18px 20px; overflow-y: auto; max-height: 62vh; display: flex; flex-direction: column; gap: 16px; }
+    .m-sec h4 { font-size: 11.5px; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-3); margin-bottom: 8px; }
+    .opt-list { display: grid; gap: 7px; }
+    .opt {
+      display: flex; align-items: center; justify-content: space-between; padding: 9px 12px;
+      border: 1px solid var(--line); border-radius: 9px; font-size: 13px; cursor: pointer;
+    }
+    .opt input { margin-right: 8px; accent-color: var(--brand); }
+    .m-note { width: 100%; border: 1px solid var(--line); border-radius: 9px; padding: 10px 12px; font: inherit; font-size: 13px; resize: vertical; min-height: 64px; }
+    .m-foot { padding: 14px 20px; border-top: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; gap: 12px; background: var(--bg); }
+    .qty { display: inline-flex; align-items: center; gap: 10px; background: var(--paper); border: 1px solid var(--line); border-radius: 9px; padding: 5px 10px; }
+    .qty button { border: 0; background: transparent; font-size: 18px; font-weight: 700; cursor: pointer; width: 24px; color: var(--brand); }
+    .btn-order {
+      flex: 1; background: var(--brand); color: #fff; border: 0; border-radius: 10px;
+      padding: 12px 16px; font: inherit; font-size: 13.5px; font-weight: 700; cursor: pointer;
+    }
+    .btn-order:hover { background: var(--brand-2); }
+
+    .c-item { display: flex; justify-content: space-between; gap: 10px; padding-bottom: 10px; border-bottom: 1px dashed var(--line); font-size: 13px; }
+    .c-item small { display: block; color: var(--ink-3); font-size: 11.5px; margin-top: 2px; }
+    .split-box { background: var(--paper-2); padding: 12px; border-radius: 10px; display: grid; gap: 8px; font-size: 13px; }
+    .split-row { display: flex; align-items: center; justify-content: space-between; }
+    .tip-pills { display: flex; gap: 6px; }
+    .tip-pills button { border: 1px solid var(--line); background: var(--paper); padding: 5px 10px; border-radius: 7px; font-size: 12px; font-weight: 600; cursor: pointer; }
+    .tip-pills button.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+    .ticket { text-align: center; padding: 18px 10px; display: grid; gap: 10px; }
+    .ticket__ico { width: 54px; height: 54px; border-radius: 50%; background: rgba(63,98,18,.14); color: var(--olive); display: grid; place-items: center; font-size: 26px; margin: 0 auto; }
+
+    @media (max-width: 760px) {
+      .grid { grid-template-columns: 1fr; }
+      .search { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="ribbon">
+    <div class="ribbon__l">
+      <a class="back" href="/">← Volver a Demos</a>
+      <span>DEMO-04 · <b>Menú Interactivo QR para Restaurantes</b></span>
+    </div>
+    <a class="cta" href="https://ideasmagna.com/#canal">Quiero este menú para mi local →</a>
+  </div>
+
+  <header class="hero">
+    <div class="hero__in">
+      <div>
+        <div class="hero__tag">Carta Digital QR · Cocina Mediterránea &amp; Brasas</div>
+        <h1>Brasa &amp; Oliva</h1>
+        <p>Toca cualquier plato para personalizar términos, agregar extras y enviar tu comanda directo a cocina o dividir la cuenta en mesa.</p>
+      </div>
+      <div class="mode-box" id="modeBox">
+        <button class="on" data-m="Mesa 07" type="button">🪑 Mesa 07</button>
+        <button data-m="Retiro en barra" type="button">🛍️ Retiro</button>
+        <button data-m="Delivery" type="button">🛵 Delivery</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="sticky">
+    <div class="sticky__in">
+      <div class="cats" id="catTabs">
+        <button class="cat on" data-c="all" type="button">Toda la carta</button>
+        <button class="cat" data-c="entradas" type="button">Entradas</button>
+        <button class="cat" data-c="brasas" type="button">Brasas &amp; Principales</button>
+        <button class="cat" data-c="pastas" type="button">Pastas &amp; Risottos</button>
+        <button class="cat" data-c="postres" type="button">Postres</button>
+        <button class="cat" data-c="bebidas" type="button">Cócteles</button>
+      </div>
+      <div class="subbar">
+        <div class="diets" id="dietTabs">
+          <button class="diet on" data-d="all" type="button">Todos</button>
+          <button class="diet" data-d="fav" type="button">★ Favoritos</button>
+          <button class="diet" data-d="vegano" type="button">🌱 Vegano</button>
+          <button class="diet" data-d="sg" type="button">🌾 Sin Gluten</button>
+          <button class="diet" data-d="picante" type="button">🌶️ Picante</button>
+        </div>
+        <input class="search" id="menuSearch" type="search" placeholder="Buscar plato o ingrediente..." />
+      </div>
+    </div>
+  </div>
+
+  <main class="wrap">
+    <div class="grid" id="dishGrid"></div>
+  </main>
+
+  <div class="cartbar empty" id="cartBar" role="button" tabindex="0">
+    <div style="display:flex;align-items:center;gap:10px">
+      <span class="cartbar__cnt" id="cartCnt">0</span>
+      <div>
+        <strong style="display:block;font-size:13.5px">Ver mi comanda</strong>
+        <small style="color:#a8a29e;font-size:11.5px" id="cartModeTxt">Mesa 07</small>
+      </div>
+    </div>
+    <strong style="font-size:16px;color:#fdba74" id="cartTotalBar">$0.00</strong>
+  </div>
+
+  <!-- Modal personalizar plato -->
+  <dialog id="dishModal">
+    <div class="m-head">
+      <h2 id="dmTitle">Plato</h2>
+      <button class="m-x" type="button" data-close="dishModal">×</button>
+    </div>
+    <div class="m-body">
+      <p id="dmDesc" style="font-size:13.5px;color:var(--ink-2);line-height:1.55"></p>
+      <div class="m-sec" id="dmTermSec">
+        <h4>Término / Preparación</h4>
+        <div class="opt-list" id="dmTerms"></div>
+      </div>
+      <div class="m-sec">
+        <h4>Extras opcionales</h4>
+        <div class="opt-list" id="dmExtras"></div>
+      </div>
+      <div class="m-sec">
+        <h4>Notas para cocina</h4>
+        <textarea class="m-note" id="dmNote" placeholder="Ej: salsa aparte, sin cebolla, alergia a frutos secos..."></textarea>
+      </div>
+    </div>
+    <div class="m-foot">
+      <div class="qty">
+        <button type="button" id="dmMinus">−</button>
+        <strong id="dmQty">1</strong>
+        <button type="button" id="dmPlus">+</button>
+      </div>
+      <button class="btn-order" type="button" id="dmAdd">Agregar · $0.00</button>
+    </div>
+  </dialog>
+
+  <!-- Modal Carrito / Comanda -->
+  <dialog id="cartModal">
+    <div class="m-head">
+      <h2>Tu Comanda (<span id="cmMode">Mesa 07</span>)</h2>
+      <button class="m-x" type="button" data-close="cartModal">×</button>
+    </div>
+    <div class="m-body" id="cmBody"></div>
+    <div class="m-foot" id="cmFoot">
+      <button class="btn-order" type="button" id="sendOrderBtn">Enviar comanda a cocina →</button>
+    </div>
+  </dialog>
+
+  <script>
+    const DISHES = [
+      { id: 1, cat: 'entradas', name: 'Burrata a la Brasa', price: 14.5, emoji: '🧀', bg: 'linear-gradient(135deg,#fef3c7,#fde68a)', tags: ['sg','fav'], desc: 'Burrata artesanal con tomates confitados al romero, aceite de albahaca y reducción balsámica.', extras: [{n:'Prosciutto di Parma',p:4.5},{n:'Pan focaccia extra',p:2.5}] },
+      { id: 2, cat: 'entradas', name: 'Carpaccio de Remolacha', price: 11.0, emoji: '🥗', bg: 'linear-gradient(135deg,#fce7f3,#fbcfe8)', tags: ['vegano','sg'], desc: 'Láminas finas de remolacha asada, crema de marañón, pistachos tostados y vinagreta cítrica.', extras: [{n:'Aguacate laminado',p:2.5},{n:'Trufa negra rallada',p:4.0}] },
+      { id: 3, cat: 'entradas', name: 'Ceviche Fuego & Mango', price: 15.0, emoji: '🍤', bg: 'linear-gradient(135deg,#ffedd5,#fed7aa)', tags: ['sg','picante','fav'], desc: 'Pesca blanca del día en leche de tigre de ají amarillo, mango maduro y maíz cancha crocante.', extras: [{n:'Extra aguacate',p:2.5},{n:'Tostones artesanales',p:3.0}] },
+      { id: 4, cat: 'brasas', name: 'Ribeye Prime 350g', price: 32.0, emoji: '🥩', bg: 'linear-gradient(135deg,#fee2e2,#fecaca)', tags: ['sg','fav'], terms: ['Término Azul', 'Término Medio (Recomendado)', 'Tres Cuartos', 'Bien Cocido'], desc: 'Corte madurado 28 días sellado a la leña de roble, mantequilla de ajo asado y papas trufadas.', extras: [{n:'Salsa chimichurri ahumado',p:2.0},{n:'Vegetales a la parrilla',p:4.5},{n:'Huevo poché',p:2.5}] },
+      { id: 5, cat: 'brasas', name: 'Salmón Glaseado en Miso', price: 26.0, emoji: '🐟', bg: 'linear-gradient(135deg,#e0f2fe,#bae6fd)', tags: ['sg'], terms: ['Jugoso (Recomendado)', 'Bien Cocido'], desc: 'Filete de salmón sellado sobre puré de coliflor ahumada, espárragos tiernos y sésamo negro.', extras: [{n:'Arroz jazmín',p:3.5},{n:'Extra espárragos',p:4.0}] },
+      { id: 6, cat: 'brasas', name: 'Coliflor Tandoori a la Leña', price: 17.5, emoji: '🥦', bg: 'linear-gradient(135deg,#dcfce7,#bbf7d0)', tags: ['vegano','sg','picante'], desc: 'Filete de coliflor marinado en especias tibias, tahini de limón, granada fresca y cilantro.', extras: [{n:'Hummus de garbanzo',p:3.5},{n:'Pan pita caliente',p:2.5}] },
+      { id: 7, cat: 'pastas', name: 'Risotto de Hongos & Trufa', price: 22.0, emoji: '🍄', bg: 'linear-gradient(135deg,#f3e8ff,#e9d5ff)', tags: ['sg','fav'], desc: 'Arroz Carnaroli cremoso con hongos porcini, aceite de trufa blanca y crujiente de parmesano.', extras: [{n:'Láminas de trufa extra',p:5.0},{n:'Pollo a la brasa',p:6.0}] },
+      { id: 8, cat: 'pastas', name: 'Tagliatelle Arrabbiata Picante', price: 18.0, emoji: '🍝', bg: 'linear-gradient(135deg,#ffe4e6,#fecdd3)', tags: ['vegano','picante'], desc: 'Pasta fresca artesanal en salsa de tomate San Marzano, ajo confitado, peperoncino y albahaca.', extras: [{n:'Burrata fresca encima',p:5.5},{n:'Queso parmesano 24m',p:3.0}] },
+      { id: 9, cat: 'postres', name: 'Tarta Vasca de Queso', price: 9.5, emoji: '🍰', bg: 'linear-gradient(135deg,#fef9c3,#fde047)', tags: ['fav'], desc: 'Cremosa por dentro y caramelizada por fuera, servida con compota tibia de frutos rojos.', extras: [{n:'Helado de vainilla bourbon',p:3.0}] },
+      { id: 10, cat: 'postres', name: 'Mousse de Cacao 70% Venezolano', price: 9.0, emoji: '🍫', bg: 'linear-gradient(135deg,#e7e5e4,#d6d3d1)', tags: ['vegano','sg'], desc: 'Chocolate oscuro de origen con flor de sal marina, aceite de oliva extra virgen y avellanas.', extras: [{n:'Shot de espresso',p:2.5}] },
+      { id: 11, cat: 'bebidas', name: 'Negroni Ahumado en Romero', price: 12.0, emoji: '🍸', bg: 'linear-gradient(135deg,#ffedd5,#fdba74)', tags: ['vegano','sg','fav'], desc: 'Gin botánico, vermut rojo reserva y Campari infusionado con humo de romero fresco.', extras: [{n:'Hielo cristal tallado',p:0}] },
+      { id: 12, cat: 'bebidas', name: 'Limonada de Maracuyá & Albahaca', price: 6.5, emoji: '🍋', bg: 'linear-gradient(135deg,#ecfccb,#d9f99d)', tags: ['vegano','sg'], desc: 'Sin alcohol · pulpa natural de parchita, albahaca fresca macerada y agua con gas.', extras: [{n:'Jarra para compartir',p:8.0}] },
+    ];
+
+    let cat = 'all', diet = 'all', mode = 'Mesa 07', tipPct = 10, splitBy = 1;
+    let activeDish = null, dmQty = 1;
+    const cart = [];
+
+    const TAG_LABELS = { fav: '★ Favorito', vegano: '🌱 Vegano', sg: '🌾 Sin Gluten', picante: '🌶️ Picante' };
+
+    function renderDishes() {
+      const q = document.getElementById('menuSearch').value.trim().toLowerCase();
+      const list = DISHES.filter((d) => {
+        if (cat !== 'all' && d.cat !== cat) return false;
+        if (diet !== 'all' && !d.tags.includes(diet)) return false;
+        if (q && !d.name.toLowerCase().includes(q) && !d.desc.toLowerCase().includes(q)) return false;
+        return true;
+      });
+      const grid = document.getElementById('dishGrid');
+      if (!list.length) {
+        grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:var(--ink-3);padding:36px 0">No hay platos que coincidan con ese filtro.</p>';
+        return;
+      }
+      grid.innerHTML = list.map((d) => `
+        <article class="dish" data-id="${d.id}">
+          <div class="dish__art" style="background:${d.bg}">
+            <span>${d.emoji}</span>
+            ${d.tags.includes('fav') ? '<small>TOP</small>' : ''}
+          </div>
+          <div class="dish__body">
+            <div class="dish__top">
+              <h3>${d.name}</h3>
+              <span class="dish__price">$${d.price.toFixed(2)}</span>
+            </div>
+            <p>${d.desc}</p>
+            <div class="dish__tags">${d.tags.map((t) => `<span>${TAG_LABELS[t]}</span>`).join('')}</div>
+          </div>
+        </article>
+      `).join('');
+      grid.querySelectorAll('.dish').forEach((el) => {
+        el.addEventListener('click', () => openDish(Number(el.dataset.id)));
+      });
+    }
+
+    function calcDishTotal() {
+      if (!activeDish) return 0;
+      let unit = activeDish.price;
+      document.querySelectorAll('#dmExtras input:checked').forEach((c) => { unit += Number(c.dataset.p); });
+      return unit * dmQty;
+    }
+
+    function paintDishBtn() {
+      document.getElementById('dmQty').textContent = dmQty;
+      document.getElementById('dmAdd').textContent = `Agregar · $${calcDishTotal().toFixed(2)}`;
+    }
+
+    function openDish(id) {
+      activeDish = DISHES.find((d) => d.id === id);
+      dmQty = 1;
+      document.getElementById('dmTitle').textContent = `${activeDish.emoji} ${activeDish.name}`;
+      document.getElementById('dmDesc').textContent = activeDish.desc;
+      document.getElementById('dmNote').value = '';
+
+      const termSec = document.getElementById('dmTermSec');
+      if (activeDish.terms) {
+        termSec.style.display = 'block';
+        document.getElementById('dmTerms').innerHTML = activeDish.terms.map((t, i) => `
+          <label class="opt"><span><input type="radio" name="term" value="${t}" ${i === 0 ? 'checked' : ''} />${t}</span></label>
+        `).join('');
+      } else {
+        termSec.style.display = 'none';
+      }
+
+      document.getElementById('dmExtras').innerHTML = activeDish.extras.map((ex, i) => `
+        <label class="opt"><span><input type="checkbox" data-n="${ex.n}" data-p="${ex.p}" />${ex.n}</span><b>${ex.p ? '+$' + ex.p.toFixed(2) : 'Gratis'}</b></label>
+      `).join('');
+      document.querySelectorAll('#dmExtras input').forEach((inp) => inp.addEventListener('change', paintDishBtn));
+
+      paintDishBtn();
+      document.getElementById('dishModal').showModal();
+    }
+
+    function paintCartBar() {
+      const count = cart.reduce((s, x) => s + x.qty, 0);
+      const sub = cart.reduce((s, x) => s + x.unit * x.qty, 0);
+      const bar = document.getElementById('cartBar');
+      bar.classList.toggle('empty', count === 0);
+      document.getElementById('cartCnt').textContent = count;
+      document.getElementById('cartModeTxt').textContent = mode;
+      document.getElementById('cartTotalBar').textContent = '$' + sub.toFixed(2);
+    }
+
+    function renderCartModal() {
+      document.getElementById('cmMode').textContent = mode;
+      const body = document.getElementById('cmBody');
+      const foot = document.getElementById('cmFoot');
+      foot.style.display = cart.length ? 'flex' : 'none';
+      if (!cart.length) {
+        body.innerHTML = '<p style="text-align:center;color:var(--ink-3);padding:20px 0">Tu comanda está vacía.</p>';
+        return;
+      }
+      const sub = cart.reduce((s, x) => s + x.unit * x.qty, 0);
+      const tip = sub * (tipPct / 100);
+      const total = sub + tip;
+
+      body.innerHTML = `
+        <div style="display:grid;gap:10px">
+          ${cart.map((it, idx) => `
+            <div class="c-item">
+              <div>
+                <strong>${it.qty}× ${it.name}</strong>
+                <small>${[it.term, ...it.extras, it.note].filter(Boolean).join(' · ') || 'Preparación estándar'}</small>
+              </div>
+              <div style="text-align:right">
+                <b>$${(it.unit * it.qty).toFixed(2)}</b>
+                <div><button type="button" data-del="${idx}" style="border:0;background:none;color:#dc2626;font-size:11px;cursor:pointer">Quitar</button></div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+        <div class="split-box">
+          <div class="split-row">
+            <span>Propina sugerida</span>
+            <div class="tip-pills">
+              ${[0, 10, 15].map((p) => `<button type="button" class="${tipPct === p ? 'on' : ''}" data-tip="${p}">${p}%</button>`).join('')}
+            </div>
+          </div>
+          <div class="split-row">
+            <span>Dividir cuenta entre</span>
+            <div class="qty" style="padding:2px 8px">
+              <button type="button" id="spMin">−</button><strong>${splitBy}</strong><button type="button" id="spPlus">+</button>
+            </div>
+          </div>
+          <div class="split-row" style="border-top:1px solid var(--line);padding-top:8px">
+            <strong>Total (${mode})</strong><strong style="font-size:17px;color:var(--brand)">$${total.toFixed(2)}</strong>
+          </div>
+          ${splitBy > 1 ? `<div class="split-row" style="color:var(--olive);font-weight:600"><span>Por persona (${splitBy})</span><span>$${(total / splitBy).toFixed(2)} c/u</span></div>` : ''}
+        </div>
+      `;
+
+      body.querySelectorAll('[data-del]').forEach((b) => b.addEventListener('click', () => {
+        cart.splice(Number(b.dataset.del), 1);
+        paintCartBar();
+        renderCartModal();
+      }));
+      body.querySelectorAll('[data-tip]').forEach((b) => b.addEventListener('click', () => {
+        tipPct = Number(b.dataset.tip);
+        renderCartModal();
+      }));
+      body.querySelector('#spMin').addEventListener('click', () => { splitBy = Math.max(1, splitBy - 1); renderCartModal(); });
+      body.querySelector('#spPlus').addEventListener('click', () => { splitBy = Math.min(10, splitBy + 1); renderCartModal(); });
+    }
+
+    document.getElementById('dmMinus').addEventListener('click', () => { dmQty = Math.max(1, dmQty - 1); paintDishBtn(); });
+    document.getElementById('dmPlus').addEventListener('click', () => { dmQty += 1; paintDishBtn(); });
+    document.getElementById('dmAdd').addEventListener('click', () => {
+      const termEl = document.querySelector('#dmTerms input:checked');
+      const extras = Array.from(document.querySelectorAll('#dmExtras input:checked')).map((c) => c.dataset.n);
+      const unit = calcDishTotal() / dmQty;
+      cart.push({
+        name: activeDish.name,
+        qty: dmQty,
+        unit,
+        term: termEl ? termEl.value : '',
+        extras,
+        note: document.getElementById('dmNote').value.trim(),
+      });
+      document.getElementById('dishModal').close();
+      paintCartBar();
+    });
+
+    document.getElementById('cartBar').addEventListener('click', () => { renderCartModal(); document.getElementById('cartModal').showModal(); });
+    document.getElementById('sendOrderBtn').addEventListener('click', () => {
+      const code = 'BO-' + Math.floor(1000 + Math.random() * 9000);
+      document.getElementById('cmFoot').style.display = 'none';
+      document.getElementById('cmBody').innerHTML = `
+        <div class="ticket">
+          <div class="ticket__ico">✓</div>
+          <h3 style="font-family:var(--f-serif);font-size:26px">¡Comanda enviada a cocina!</h3>
+          <p style="font-size:13.5px;color:var(--ink-2)">Orden <b>#${code}</b> · <b>${mode}</b><br/>Tiempo estimado de preparación: <b>16–20 min</b>.</p>
+          <p style="font-size:12px;color:var(--ink-3)">(Simulación interactiva de Ideas Magna — en producción se integra directo a impresora térmica, KDS o WhatsApp del restaurante).</p>
+        </div>
+      `;
+      cart.length = 0;
+      paintCartBar();
+    });
+
+    document.querySelectorAll('[data-close]').forEach((b) => {
+      b.addEventListener('click', () => document.getElementById(b.dataset.close).close());
+    });
+    document.querySelectorAll('#catTabs button').forEach((b) => b.addEventListener('click', () => {
+      document.querySelectorAll('#catTabs button').forEach((x) => x.classList.remove('on'));
+      b.classList.add('on');
+      cat = b.dataset.c;
+      renderDishes();
+    }));
+    document.querySelectorAll('#dietTabs button').forEach((b) => b.addEventListener('click', () => {
+      document.querySelectorAll('#dietTabs button').forEach((x) => x.classList.remove('on'));
+      b.classList.add('on');
+      diet = b.dataset.d;
+      renderDishes();
+    }));
+    document.querySelectorAll('#modeBox button').forEach((b) => b.addEventListener('click', () => {
+      document.querySelectorAll('#modeBox button').forEach((x) => x.classList.remove('on'));
+      b.classList.add('on');
+      mode = b.dataset.m;
+      paintCartBar();
+    }));
+    document.getElementById('menuSearch').addEventListener('input', renderDishes);
+
+    renderDishes();
+  </script>
+</body>
+</html>
